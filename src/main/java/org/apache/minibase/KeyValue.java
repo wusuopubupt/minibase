@@ -3,6 +3,9 @@ package org.apache.minibase;
 import java.io.IOException;
 import java.util.Comparator;
 
+/**
+ * An MiniBase Key/Value.  This is the fundamental MiniBase Type.
+ */
 public class KeyValue implements Comparable<KeyValue> {
 
   public static final int RAW_KEY_LEN_SIZE = 4;
@@ -16,6 +19,9 @@ public class KeyValue implements Comparable<KeyValue> {
   private Op op;
   private long sequenceId;
 
+  /**
+   * Operation type enum.
+   */
   public enum Op {
     Put((byte) 0),
     Delete((byte) 1);
@@ -26,7 +32,7 @@ public class KeyValue implements Comparable<KeyValue> {
       this.code = code;
     }
 
-    public static Op code2Op(byte code) {
+    public static Op codeToOp(byte code) {
       switch (code) {
         case 0:
           return Put;
@@ -179,7 +185,7 @@ public class KeyValue implements Comparable<KeyValue> {
     pos += keyLen;
 
     // Decode Op
-    Op op = Op.code2Op(bytes[pos]);
+    Op op = Op.codeToOp(bytes[pos]);
     pos += 1;
 
     // Decode sequenceId

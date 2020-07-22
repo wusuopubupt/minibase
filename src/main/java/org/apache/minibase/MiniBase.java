@@ -5,10 +5,27 @@ import java.io.IOException;
 
 public interface MiniBase extends Closeable {
 
+  /**
+   * Put key value to store.
+   * @param key
+   * @param value
+   * @throws IOException
+   */
   void put(byte[] key, byte[] value) throws IOException;
 
+  /**
+   * Get value by specified key from store.
+   * @param key
+   * @return KeyValue
+   * @throws IOException
+   */
   KeyValue get(byte[] key) throws IOException;
 
+  /**
+   * Delete data by specified key from store.
+   * @param key
+   * @throws IOException
+   */
   void delete(byte[] key) throws IOException;
 
   /**

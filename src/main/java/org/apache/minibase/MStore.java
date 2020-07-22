@@ -1,42 +1,50 @@
 package org.apache.minibase;
 
+import com.google.common.base.Preconditions;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 import org.apache.minibase.DiskStore.DefaultCompactor;
 import org.apache.minibase.DiskStore.DefaultFlusher;
 import org.apache.minibase.DiskStore.MultiIter;
 import org.apache.minibase.KeyValue.Op;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicLong;
-
+/**
+ * Mini Base Implementation.
+ */
 public class MStore implements MiniBase {
 
-  private ExecutorService pool;
+  private ExecutorService threadPool;
+
   private MemStore memStore;
+
   private DiskStore diskStore;
+
   private Compactor compactor;
+
   private AtomicLong sequenceId;
 
   private Config conf;
 
+  private static final int QUEUE_SIZE = 1024;
+
   public MiniBase open() throws IOException {
-    assert conf != null;
-
-    // initialize the thread pool;
-    this.pool = Executors.newFixedThreadPool(conf.getMaxThreadPoolSize());
-
-    // initialize the disk store.
+    Preconditions.checkNotNull(conf, "Config can not be null!");
+    // Initialize thread pool.
+    this.threadPool = new ThreadPoolExecutor(1, 1,
+        0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(QUEUE_SIZE));
+    // Initialize disk store.
     this.diskStore = new DiskStore(conf.getDataDir(), conf.getMaxDiskFiles());
     this.diskStore.open();
-    // TODO initialize the max sequence id here.
     this.sequenceId = new AtomicLong(0);
-
-    // initialize the memstore.
-    this.memStore = new MemStore(conf, new DefaultFlusher(diskStore), pool);
-
+    // Initialize memstore.
+    this.memStore = new MemStore(conf, new DefaultFlusher(diskStore), threadPool);
+    // Initialize compactor.
     this.compactor = new DefaultCompactor(diskStore);
     this.compactor.start();
     return this;

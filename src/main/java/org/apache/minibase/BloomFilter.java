@@ -1,5 +1,12 @@
 package org.apache.minibase;
 
+import com.google.common.base.Preconditions;
+
+/**
+ * A Bloom filter offers an approximate containment test with one-sided error:
+ * if it claims that an element is contained in it, this might be in error,
+ * but if it claims that an element is <i>not</i> contained in it, then this is definitely true.
+ */
 public class BloomFilter {
   private int k;
   private int bitsPerKey;
@@ -12,7 +19,7 @@ public class BloomFilter {
   }
 
   public byte[] generate(byte[][] keys) {
-    assert keys != null;
+    Preconditions.checkNotNull(keys, "keys can not be null!");
     bitLen = keys.length * bitsPerKey;
     bitLen = ((bitLen + 7) / 8) << 3; // align the bitLen.
     bitLen = bitLen < 64 ? 64 : bitLen;
@@ -31,7 +38,7 @@ public class BloomFilter {
   }
 
   public boolean contains(byte[] key) {
-    assert result != null;
+    Preconditions.checkNotNull(result, "result can not be null!");
     int h = Bytes.hash(key);
     for (int t = 0; t < k; t++) {
       int idx = (h % bitLen + bitLen) % bitLen;

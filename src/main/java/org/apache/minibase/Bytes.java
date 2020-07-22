@@ -2,6 +2,9 @@ package org.apache.minibase;
 
 import java.io.IOException;
 
+/**
+ * Utility class that handles byte arrays, conversions to/from other types.
+ */
 public class Bytes {
 
   public final static byte[] EMPTY_BYTES = new byte[0];
